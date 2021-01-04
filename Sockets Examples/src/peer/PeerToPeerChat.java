@@ -17,12 +17,12 @@ public class PeerToPeerChat {
     private static final int PORT = 33_333;
     
  
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         System.out.println("Choose wisely:");
         System.out.println("1 to start a connection:");
         System.out.println("2 to make a connection:");
         
-        String response = System.console().readLine();
+        final String response = System.console().readLine();
         if ("1".equals(response)) {
             waitForPeer();
         } else if ("2".equals(response)) {
@@ -34,13 +34,18 @@ public class PeerToPeerChat {
     }
     
     public static void waitForPeer() {
+        /*
+         * OK to use try with resources here. We do not need to keep the server socket open
+         * once the connection has been made.  
+         */
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             
-            System.out.println("Waiting for peer on port: " + PORT);
- 
-            Socket socket = serverSocket.accept();
+            System.out.println("Waiting for peer on port: " + PORT);  
+            
+            //This NOPMD is OK since the Socket is closed somewhere else
+            final Socket socket = serverSocket.accept(); //NOPMD
             System.out.println("Peer connected");
-            Peer peer = new Peer(socket);
+            final Peer peer = new Peer(socket);
             peer.start();
         } catch (IOException ex) {
             System.out.println("Server exception: " + ex.getMessage());
@@ -49,10 +54,14 @@ public class PeerToPeerChat {
     }
     
     public static void connectToPeer() {
-        
+        /*
+         * We do NOT use try with resources syntax here. A try with resources will close the
+         * resource that was opened when the try block is exited. We need to keep the socket
+         * open.
+         */
         try {
             
-            Peer peer = new Peer(new Socket(NetworkUtilities.getLocalHost(), PORT));
+            final Peer peer = new Peer(new Socket(NetworkUtilities.getLocalHost(), PORT));
             peer.start();
             
         } catch (UnknownHostException ex) {

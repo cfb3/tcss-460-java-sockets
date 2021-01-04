@@ -21,7 +21,8 @@ public class BroadcastServer {
             System.out.println("Server is listening on port " + DEFAULT_PORT);
  
             while (!serverSocket.isClosed()) {
-                final Socket socket = serverSocket.accept();
+                //This NOPMD is OK since the Socket is closed somewhere else
+                final Socket socket = serverSocket.accept(); //NOPMD
                 System.out.println("New client connected");
  
                 try {

@@ -7,28 +7,35 @@ import java.util.Date;
  * This program demonstrates a simple TCP/IP socket server.
  *
  * @author www.codejava.net
+ * @author Charles Bryan
+ * @version Slight Edits from original
  */
 public class TimeServer {
  
-    public static void main(String[] args) {
+    public static final int DEFAULT_PORT = 33_333;
+    
+    public static void main(final String[] args) {
  
-        int port = 33_333;
+        try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
  
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server is listening on port " + DEFAULT_PORT);
  
-            System.out.println("Server is listening on port " + port);
- 
-            while (true) {
+            while (!serverSocket.isClosed()) {
                 
+                /*
+                 * OK to use try with resources here. We do not need to keep the socket open
+                 * once the connection has been made and time is sent. 
+                 */
                 //BLOCKING call! Will wait until a client connects. 
-                Socket socket = serverSocket.accept();
- 
-                System.out.println("New client connected");
- 
-                OutputStream output = socket.getOutputStream();
-                PrintWriter writer = new PrintWriter(output, true);
- 
-                writer.println(new Date().toString());
+                try (final Socket socket = serverSocket.accept()) {
+                    System.out.println("New client connected");
+                    try (final OutputStream output = socket.getOutputStream()) {
+                        try (final PrintWriter writer = new PrintWriter(output, true)) {
+                            writer.println(new Date().toString());
+                        }
+                    }
+                }
+
             }
  
         } catch (IOException ex) {

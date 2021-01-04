@@ -9,19 +9,25 @@ import java.net.*;
  * This server is multi-threaded.
  *
  * @author www.codejava.net
+ * @author Charles Bryan
+ * @version Edited from original
  */
 public class ReverseServer {
  
-    public static void main(String[] args) {
-        
-        int port = 33_333;
+    public static final int DEFAULT_PORT = 33_333;
+    
+    public static void main(final String[] args) {
+        /*
+         * OK to use try with resources here. We do not need to keep the server socket open
+         * once the connection has been made.  
+         */
+        try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
  
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server is listening on port " + DEFAULT_PORT);
  
-            System.out.println("Server is listening on port " + port);
- 
-            while (true) {
-                Socket socket = serverSocket.accept();
+            while (!serverSocket.isClosed()) {
+                //This NOPMD is OK since the Socket is closed somewhere else
+                final Socket socket = serverSocket.accept(); //NOPMD
                 System.out.println("New client connected");
  
                 new ServerThread(socket).start();

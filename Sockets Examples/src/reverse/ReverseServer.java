@@ -8,43 +8,64 @@ import java.net.*;
  * This server is single-threaded.
  *
  * @author www.codejava.net
+ * @author Charles Bryan
+ * @version Edited from original
  */
 public class ReverseServer {
+    
+    public static final int DEFAULT_PORT = 33_333;
  
-    public static void main(String[] args) {
-        
-        int port = 33_333;
+    public static void main(final String[] args) {
+        /*
+         * OK to use try with resources here. We do not need to keep the server socket open
+         * once the connection has been made.  
+         */
+        try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
  
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server is listening on port " + DEFAULT_PORT);
  
-            System.out.println("Server is listening on port " + port);
- 
-            while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("New client connected");
- 
-                InputStream input = socket.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
- 
-                OutputStream output = socket.getOutputStream();
-                PrintWriter writer = new PrintWriter(output, true);
- 
- 
-                String text;
- 
-                do {
-                    text = reader.readLine();
-                    String reverseText = new StringBuilder(text).reverse().toString();
-                    writer.println("Server: " + reverseText);
- 
-                } while (!text.equals("bye"));
- 
-                socket.close();
+            while (!serverSocket.isClosed()) {
+                try (Socket socket = serverSocket.accept()) {
+                    //BLOCKING call
+                    handleSocketConnection(socket);
+                    socket.close();
+                }
             }
  
         } catch (IOException ex) {
             System.out.println("Server exception: " + ex.getMessage());
             ex.printStackTrace();
+        }
+    }
+    
+    private static void handleSocketConnection(final Socket theSocket) {
+        System.out.println("New client connected");
+        
+        /*
+         * OK to use try with resources here. Its ok to close all open streams when the user
+         * exits the loop. 
+         */
+        try (InputStream input = theSocket.getInputStream()) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+                try (OutputStream output = theSocket.getOutputStream()) {
+                    try (PrintWriter writer = new PrintWriter(output, true)) {
+                        String text;
+                        do {
+                            text = reader.readLine();
+                            if (text != null) {
+                                final String reverseText = 
+                                                new StringBuilder(text)
+                                                    .reverse()
+                                                    .toString();
+                                writer.println("Server: " + reverseText);
+                            }
+                
+                        } while (!"bye".equals(text));
+                    }
+                }
+            }
+        } catch (IOException theException) {
+            theException.printStackTrace();
         }
     }
 }

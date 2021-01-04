@@ -1,8 +1,5 @@
-/.DS_Store
-/TestingBitwise.class
-/broadcast/
 /peer/
+/broadcast/
+/time/
 /reverse/
 /reversemulti/
-/time/
-/util/

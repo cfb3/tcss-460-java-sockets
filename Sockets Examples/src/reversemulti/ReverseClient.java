@@ -1,6 +1,12 @@
 package reversemulti;
 
+import static util.NetworkUtilities.getLocalHost;
+
+
 import java.net.*;
+
+import time.TimeServer;
+
 import java.io.*;
  
 /**
@@ -11,46 +17,29 @@ import java.io.*;
  */
 public class ReverseClient {
  
-    public static void main(String[] args) {
-        String hostname = "local";
-        
-        InetAddress localhost = null;
-        try {
-            localhost = InetAddress.getLocalHost();
-            hostname = localhost.getHostAddress();
-        } catch (UnknownHostException e) {
-            
-            e.printStackTrace();
-            System.exit(0);
-        }
+    public static void main(final String[] args) {
+        /*
+         * OK to use try with resources here. Its ok to close all open streams when the user
+         * exits the loop. 
+         */
+        try (Socket socket = new Socket(getLocalHost(), TimeServer.DEFAULT_PORT)) {
+            try (InputStream input = socket.getInputStream()) {
+               try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+                   try (OutputStream output = socket.getOutputStream()) {
+                       try (PrintWriter writer = new PrintWriter(output, true)) {
 
-        int port = 33_333;
- 
-        try (Socket socket = new Socket(hostname, port)) {
- 
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
- 
-            Console console = System.console();
-            String text;
- 
-            do {
-                text = console.readLine("Enter text: ");
- 
-                writer.println(text);
- 
-                InputStream input = socket.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(input));
- 
-                String time = reader.readLine();
- 
-                System.out.println(time);
- 
-            } while (!text.equals("bye"));
- 
-            socket.close();
- 
-        } catch (UnknownHostException ex) {
+                           final Console console = System.console();
+                           String text;
+                           do {
+                               text = console.readLine("Enter text: ");
+                               writer.println(text);
+                               System.out.println(reader.readLine());
+                           } while (!"bye".equals(text));
+                       }
+                   }
+               }
+            }
+         } catch (UnknownHostException ex) {
  
             System.out.println("Server not found: " + ex.getMessage());
  

@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 
 public class Peer {
     
-    private Socket mySocket;
+    private final Socket mySocket;
     
     public Peer(final Socket theSocket) {
         mySocket = theSocket;
