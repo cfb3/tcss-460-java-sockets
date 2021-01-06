@@ -51,6 +51,8 @@ public class ReverseServer {
                     try (PrintWriter writer = new PrintWriter(output, true)) {
                         String text;
                         do {
+                            //blocking call, waiting for client to send me someting to revers
+                            
                             text = reader.readLine();
                             if (text != null) {
                                 final String reverseText = 

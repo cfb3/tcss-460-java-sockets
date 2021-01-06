@@ -20,6 +20,7 @@ public class TimeClient {
      
                     //BLOCKING call! Will wait until server sends a response
                     System.out.println(reader.readLine());
+                    
                 }
             }
  

@@ -35,7 +35,6 @@ public class TimeServer {
                         }
                     }
                 }
-
             }
  
         } catch (IOException ex) {

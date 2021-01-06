@@ -30,6 +30,7 @@ public class ReverseServer {
                 final Socket socket = serverSocket.accept(); //NOPMD
                 System.out.println("New client connected");
  
+                //This is NOT a blocking call
                 new ServerThread(socket).start();
             }
  
